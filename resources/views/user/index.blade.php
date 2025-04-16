@@ -39,9 +39,6 @@
                                         $no = 1;
                                     @endphp
                                     @foreach ($users as $item)
-                                            @if ($item->role === 'admin')
-                                            @continue
-                                    @endif
                                         <tbody>
                                             <tr>
                                                 <th scope="row">{{ $no++ }}</th>

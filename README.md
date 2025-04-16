@@ -64,3 +64,12 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+       <h4>
+                                        <small class="text-muted">Member:</small>
+                                        {{ App\Models\Sale::whereHas('member')->whereToday('created_at')->count() }}
+                                    </h4>
+                                    <h4>
+                                        <small class="text-muted">Non Member:</small>
+                                        {{ App\Models\Sale::where('member_id')->whereToday('created_at')->count() }}
+                                    </h4>

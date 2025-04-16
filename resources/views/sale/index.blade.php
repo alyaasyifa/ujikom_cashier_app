@@ -62,7 +62,7 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $sale->member?->name ?? 'NON-MEMBER' }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($sale->sale_date)->format('d-m-Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($sale->created_at)->setTimezone('Asia/Jakarta')->format('d-m-Y H:i') }}</td>
                                     <td>
                                         @if (!$sale->member)
                                             {{-- Non-member --}}
