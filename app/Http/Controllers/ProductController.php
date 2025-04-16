@@ -2,11 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\product;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
 
-class ProductController extends Controller
+class ProductController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            // 'auth',
+            new Middleware('admin', except: ['index']),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -34,7 +43,7 @@ class ProductController extends Controller
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'product_name' => 'required|min:3',
             'price_raw' => 'required|numeric|min:1',
-            'stock' => 'required|numeric|min:3',
+            'stock' => 'required|numeric|min:1',
         ]);
 
         //ambil file dari request
@@ -135,9 +144,26 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
+        $product = Product::find($id);
+
+        if (!$product) {
+
+            return redirect()->back()->with('failed', 'Data tidak ditemukan');
+
+        }
+
+        $penjualanUsingProduk = $product->detailSale()->exists();
+
+        if ($penjualanUsingProduk) {
+
+            return redirect()->back()->with('failed', 'Produk sudah digunakan dalam penjualan');
+
+        }
+        
         $product->delete();
-        return redirect()->back()->with('success', 'Berhasil menghapus data!');
+
+        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus.');
     }
 }

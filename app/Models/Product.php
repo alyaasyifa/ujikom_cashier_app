@@ -15,4 +15,12 @@ class Product extends Model
         'stock'
     ];
 
+    protected $guarded = ['id'];
+
+    public function detailSale()
+    {
+        return $this->hasMany(DetailSale::class);
+    }
+
+
 }

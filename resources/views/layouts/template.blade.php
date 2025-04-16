@@ -81,8 +81,8 @@
                             <ul class="dropdown-menu dropdown-menu-end user-dd animated"
                                 aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href=""><i class="ti-user m-r-5 m-l-5"></i>
-                                    Hi, !</a>
-                                <a class="dropdown-item" href="#"><i
+                                    Hi, {{ Auth::user()->name }}!</a>
+                                <a class="dropdown-item" href="{{ route('logout') }}"><i
                                         class="ti-power-off m-r-5 m-l-5"></i> Logout</a>
                             </ul>
                         </li>
@@ -103,24 +103,24 @@
                         </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href=" " aria-expanded="false">
+                                href="{{ route('products.index') }}" aria-expanded="false">
                                 <i class="mdi mdi-store"></i><span class="hide-menu">Produk</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href=" " aria-expanded="false">
+                                href="{{ route('sales.index') }}" aria-expanded="false">
                                 <i class="mdi mdi-cart"></i><span class="hide-menu">Pembelian</span>
                             </a>
                         </li>
-
+                        @if (Auth::check() && Auth::user()->role == 'admin')
                             <li class="sidebar-item">
                                 <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                    href=" " aria-expanded="false">
+                                    href="{{ route('users.index') }}" aria-expanded="false">
                                     <i class="mdi mdi-account-circle"></i><span class="hide-menu">User</span>
                                 </a>
                             </li>
-
+                        @endif
                     </ul>
                 </nav>
             </div>

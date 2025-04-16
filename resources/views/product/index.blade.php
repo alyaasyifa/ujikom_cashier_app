@@ -25,13 +25,28 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-
+                            @if (Auth::user()->role !== 'kasir')
                                 <div class="text-end mb-3">
                                     <a href="{{ route('products.create') }}" class="btn btn-primary text-white">Tambah Produk</a>
                                 </div>
+                            @endif
+
+                            @if (session('failed'))
+                                <script>
+                                window.onload = function () {
+                                    setTimeout(() => {
+                                        Swal.fire({
+                                            text: "{{ session('failed') }}",
+                                            icon: 'error',
+                                            confirmButtonText: 'OK'
+                                        });
+                                    });
+                                };
+                                </script>
+                            @endif
 
                             <div class="table-responsive">
-                                <table class="table" id="">
+                                <table class="table" id="tables">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
@@ -39,9 +54,9 @@
                                             <th scope="col">Nama Produk</th>
                                             <th scope="col">Harga</th>
                                             <th scope="col">Stok</th>
-
-                                                {{-- <th scope="col"></th> --}}
-
+                                            @if (Auth::user()->role !== 'kasir')
+                                                <th scope="col"></th>
+                                            @endif
                                         </tr>
                                     </thead>
 
@@ -49,30 +64,31 @@
                                         $no = 1;
                                     @endphp
 
-                                    @foreach ($products as $item )
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">{{ $no++ }}</th>
-                                            <td>
-                                                <img src="{{ asset('image/' . $item->image) }}" alt="Product Image" width="100">
-                                            </td>
-                                            <td>{{ $item->product_name }}</td>
-                                            <td>{{ 'Rp. ' . number_format($item->price, 0, ',', '.') }}</td>
-                                            <td>{{ $item->stock }}</td>
+                                    @foreach ($products as $item)
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">{{ $no++ }}</th>
+                                                <td>
+                                                    <img src="{{ asset('image/' . $item->image) }}" alt="Product Image" width="100">
+                                                </td>
+                                                <td>{{ $item->product_name }}</td>
+                                                <td>{{ 'Rp. ' . number_format($item->price, 0, ',', '.') }}</td>
+                                                <td>{{ $item->stock }}</td>
 
-                                            <td>
-                                                <a href="{{ route('products.edit', $item->id) }}" class="btn btn-warning">Edit</a>
+                                                @if (Auth::user()->role !== 'kasir')
+                                                    <td>
+                                                        <a href="{{ route('products.edit', $item->id) }}" class="btn btn-warning">Edit</a>
 
-                                                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#confirmUpdateModal-{{ $item->id }}">
-                                                    Update Stok
-                                                </button>
+                                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#confirmUpdateModal-{{ $item->id }}">
+                                                            Update Stok
+                                                        </button>
 
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-{{ $item->id }}">
-                                                    Hapus
-                                                </button>
-                                            </td>
-
-                                        </tr>
+                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-{{ $item->id }}">
+                                                            Hapus
+                                                        </button>
+                                                    </td>
+                                                @endif
+                                            </tr>
 
                                             <!-- Modal Update Stok -->
                                             <div class="modal fade" id="confirmUpdateModal-{{ $item->id }}" tabindex="-1" aria-labelledby="confirmUpdateModalLabel" aria-hidden="true">
@@ -85,17 +101,17 @@
                                                         <div class="modal-body">
                                                             @if (session('success'))
                                                             <script>
-                                                                window.onload = function () {
-                                                                    setTimeout(() => {
-                                                                        Swal.fire({
-                                                                            title: 'Sukses!',
-                                                                            text: "{{ session('success') }}",
-                                                                            icon: 'success',
-                                                                            confirmButtonText: 'OK'
-                                                                        });
-                                                                    }, 500);
-                                                                };
-                                                                </script>
+                                                            window.onload = function () {
+                                                                setTimeout(() => {
+                                                                    Swal.fire({
+                                                                        title: 'Sukses!',
+                                                                        text: "{{ session('success') }}",
+                                                                        icon: 'success',
+                                                                        confirmButtonText: 'OK'
+                                                                    });
+                                                                }, 500);
+                                                            };
+                                                            </script>
                                                             @endif
 
                                                             <form action="{{ route('updateStock', $item->id) }}" method="POST">

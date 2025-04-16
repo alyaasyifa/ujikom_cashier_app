@@ -16,34 +16,34 @@
             </div>
         </div>
 
-        <form action=" " method="POST">
-
+        <form action="{{ route('sales.transaction') }}" method="POST">
+            @csrf
             <div class="container mt-4">
                 <div class="row">
-                    
+                    @foreach ($products as $product)
                         <div class="col-md-4 col-sm-6 mb-4">
                             <div class="card shadow-sm text-center p-3">
-                                <img src=" " alt="Product Image" class="product-image" style="max-width: 110px; height: auto; margin: 0 auto;">
+                                <img src="{{ asset('image/' . $product->image) }}" alt="Product Image" class="product-image" style="max-width: 110px; height: auto; margin: 0 auto;">
                                 <div class="card-body">
-                                    <h5 class="fw-bold"> </h5>
-                                    <p class="text-muted">Stok: <strong class="stock"> </strong></p>
+                                    <h5 class="fw-bold">{{ $product->name }}</h5>
+                                    <p class="text-muted">Stok: <strong class="stock">{{ $product->stock }}</strong></p>
                                     <p class="fw-bold">
-                                        Rp. <span class="item-price" data-price=""> </span>
+                                        Rp. <span class="item-price" data-price="{{ $product->price }}">{{ number_format($product->price, 0, ',', '.') }}</span>
                                     </p>
-        
+
                                     <div class="input-group d-flex justify-content-center align-items-center">
                                         <button type="button" class="btn btn-outline-secondary btn-sm minus" style="border-radius: 20px 0 0 20px;">-</button>
-                                        <input type="text" class="quantity text-center" name="quantity" value="0" readonly style="width: 40px; border-radius: 0;">
+                                        <input type="text" class="quantity text-center" name="quantity[{{ $product->id }}]" value="0" readonly style="width: 40px; border-radius: 0;">
                                         <button type="button" class="btn btn-outline-secondary btn-sm plus" style="border-radius: 0 20px 20px 0;">+</button>
                                     </div>
-        
+
                                     <p class="mt-2">Sub Total: <strong class="total-price">Rp. 0</strong></p>
                                 </div>
                             </div>
                         </div>
-                    
+                    @endforeach
                 </div>
-        
+
                 <div class="fixed-bottom bg-white border-top p-3 shadow-sm">
                     <div class="position-absolute top-0 end-0 border-top border-warning" style="height: 3px; width: 1010px;">
                     </div>
@@ -52,7 +52,7 @@
                     </div>
                 </div>
             </div>
-        </form>        
+        </form>
     </div>
 
     <style>
@@ -100,6 +100,32 @@
 @push('script')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            const cartItems = document.querySelectorAll(".card");
+            const submitButton = document.getElementById("submit-bottom");
+
+            function updateTotal() {
+                let total = 0;
+                let hasValidQuantity = false;
+
+                cartItems.forEach(item => {
+                    const priceElement = item.querySelector(".item-price");
+                    const price = parseInt(priceElement.dataset.price);
+                    const quantityInput = item.querySelector(".quantity");
+                    const quantity = parseInt(quantityInput.value);
+                    const subTotalElement = item.querySelector(".total-price");
+
+                    if (quantity > 0) {
+                        hasValidQuantity = true;
+                    }
+
+                    let subTotal = price * quantity;
+                    subTotalElement.textContent = "Rp " + subTotal.toLocaleString("id-ID");
+
+                    total += subTotal;
+                });
+
+                submitButton.disabled = !hasValidQuantity;
+            }
 
             cartItems.forEach(item => {
                 const quantityInput = item.querySelector(".quantity");

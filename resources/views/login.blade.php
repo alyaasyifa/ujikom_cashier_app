@@ -34,7 +34,7 @@
         <div class="container d-flex justify-content-center align-items-center vh-100">
             <div class="card p-4 shadow-lg" style="width: 500px; border-radius: 5px;">
                 <h3 class="text-center mb-4">Login</h3>
-                
+
                 @if (session('error'))
                 <script>
                   Swal.fire({
@@ -57,7 +57,8 @@
                     </script>
                 @endif
 
-                <form action="" method="POST">
+                <form action="{{ route('loginStore') }}" method="POST">
+                    @csrf
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" id="email" name="email" class="form-control" required>
@@ -70,14 +71,14 @@
                 </form>
             </div>
         </div>
-  
+
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>   
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>  
+    <script src="js/main.js"></script>
     <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
     <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>

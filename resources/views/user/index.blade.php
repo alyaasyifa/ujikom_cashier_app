@@ -22,7 +22,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="text-end">
-                                <a href=" {{ route('users.create') }} " class="btn btn-primary text-white">Tambah User</a>
+                                <a href="{{ route('users.create') }}" class="btn btn-primary text-white">Tambah User</a>
                             </div>
                             <div class="table-responsive">
                                 <table class="table">
@@ -38,30 +38,33 @@
                                     @php
                                         $no = 1;
                                     @endphp
-                                    @foreach ($users as $item )
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">{{ $no++ }}</th>
-                                            <td>{{ $item->email }}</td>
+                                    @foreach ($users as $item)
+                                            @if ($item->role === 'admin')
+                                            @continue
+                                    @endif
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">{{ $no++ }}</th>
+                                                <td>{{ $item->email }}</td>
                                                 <td>{{ $item->name }}</td>
                                                 <td>{{ $item->role }}</td>
                                                 <td>
                                                     <a href="{{ route('users.edit', $item['id']) }}"
-                                                    class="btn btn-warning">Edit</a>
+                                                        class="btn btn-warning">Edit</a>
                                                     <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                                         data-bs-target="#confirmDeleteModal-{{ $item['id'] }}">Hapus</button>
                                                 </td>
                                             </tr>
 
                                             <div class="modal fade" id="confirmDeleteModal-{{ $item['id'] }}" tabindex="-1"
-                                            aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="confirmDeleteModalLabel">Konfirmasi
-                                                            hapus</h1>
+                                                aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="confirmDeleteModalLabel">Konfirmasi
+                                                                hapus</h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
+                                                                aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             Yakin ingin menghapus data ini?

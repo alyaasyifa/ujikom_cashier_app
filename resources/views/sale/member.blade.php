@@ -19,7 +19,14 @@
     </div>
 
     <div class="container mt-4">
-        <form action=" " method="POST">
+        <form action="{{ route('sales.storeMember', $sale->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="member_id" value="{{ $member->id }}">
+            <input type="hidden" name="customer_type" value="member">
+            <input type="hidden" name="phone" value="{{ $member->phone }}">
+            <input type="hidden" name="amount_paid" value="{{ $paymentAmount }}">
+            <input type="hidden" name="total_points" value="{{ $earnedPoints }}">
 
             <div class="row">
                 <!-- Produk -->
@@ -36,27 +43,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
+                                    @foreach($detailSales as $detail)
                                         <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td>Rp </td>
-                                            <td>Rp. </td>
+                                            <td>{{ $detail->product->product_name }}</td>
+                                            <td>{{ $detail->quantity }}</td>
+                                            <td>Rp {{ number_format($detail->product->price, 0, ',', '.') }}</td>
+                                            <td>Rp. {{ number_format($detail->total_price, 0, ',', '.') }}</td>
                                         </tr>
+                                    @endforeach
 
-
-
-                                        <input type="hidden" name="product_id[]" value=" ">
-                                        <input type="hidden" name="quantity[]" value=" ">
-                                        <input type="hidden" name="subtotal[]" value=" ">
-
+                                    @foreach ($detailSales as $detail)
+                                        <input type="hidden" name="product_id[]" value="{{ $detail->product->id }}">
+                                        <input type="hidden" name="quantity[]" value="{{ $detail->quantity }}">
+                                        <input type="hidden" name="subtotal[]" value="{{ $detail->total_price }}">
+                                    @endforeach
 
                                 </tbody>
                             </table>
                             <div class="text-end mt-3">
                                 <div class="d-flex justify-content-between">
                                     <p class="fw-bold mb-1">Total Harga</p>
-                                    <p class="fw-bold mb-1">Rp. </p>
+                                    <p class="fw-bold mb-1">Rp. {{ number_format($sale->total_price, 0, ',', '.') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -68,11 +75,11 @@
                     <div class="card">
                         <div class="card-body">
                             <label class="fw-bold">Nama Member</label>
-                            <input type="text" class="form-control mb-3" name="name" value=" ">
+                            <input type="text" class="form-control mb-3" name="name" value="{{ $member->name }}">
 
                             <label class="fw-bold">Poin Didapat</label>
                             <input type="text" class="form-control mb-2" name="total_points_display"
-                                value=" " readonly>
+                                value="{{ $member->total_points ?? 0 }}" readonly>
 
                             <div class="form-check mt-3">
                                 <input class="form-check-input" type="checkbox" name="check_point" id="check_point"
@@ -85,7 +92,7 @@
                                 </label>
 
                                 <small class="text-muted">
-                                    Poin yang terdapat ditransaksi ini:
+                                    Poin yang terdapat ditransaksi ini: {{ $earnedPoints }}
                                 </small>
                             </div>
 

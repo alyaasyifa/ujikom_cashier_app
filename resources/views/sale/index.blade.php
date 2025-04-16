@@ -25,11 +25,25 @@
             <div class="card-body">
 
                 <div class="d-flex justify-content-between mb-3">
-                    <a href=" " class="btn btn-success text-white">Export Penjualan (.xls)</a>
-                    
-                        <a href=" " class="btn btn-primary text-white">Tambah Penjualan</a>
-                    
+                    <a href="{{ route('export.laporan.penjualan' )}}" class="btn btn-success text-white">Export Penjualan (.xls)</a>
+                    @if (Auth::user()->role !== 'admin')
+                        <a href="{{ route('sales.create') }}" class="btn btn-primary text-white">Tambah Penjualan</a>
+                    @endif
                 </div>
+
+                @if (session('error'))
+                    <script>
+                    window.onload = function () {
+                        setTimeout(() => {
+                            Swal.fire({
+                                text: "{{ session('error') }}",
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                    };
+                    </script>
+                @endif
 
                 <div class="table-responsive">
                     <table class="table" id="tables">
@@ -44,30 +58,43 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
+                            @forelse ($sales as $index => $sale)
                                 <tr>
-                                    <td> </td>
-                                    <td> </td>
-                                    <td> </td>
-                                    <td> </td>
-                                    <td> </td>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $sale->member?->name ?? 'NON-MEMBER' }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($sale->sale_date)->format('d-m-Y') }}</td>
+                                    <td>
+                                        @if (!$sale->member)
+                                            {{-- Non-member --}}
+                                            Rp {{ number_format($sale->total_price, 0, ',', '.') }}
+                                        @elseif ($sale->member && $sale->points_used > 0)
+                                            {{-- Member yang pakai poin --}}
+                                            Rp {{ number_format($sale->final_price_member, 0, ',', '.') }}
+                                            {{-- <span class="badge bg-success ms-1">Pakai Poin</span> --}}
+                                        @else
+                                            {{-- Member tapi tidak pakai poin --}}
+                                            Rp {{ number_format($sale->total_price, 0, ',', '.') }}
+                                        @endif
+                                    </td>
+
+                                    <td>{{ $sale->user->name ?? '-' }}</td>
                                     <td class="d-flex gap-1">
                                         <button type="button" class="btn btn-warning btn-sm"
                                             data-bs-toggle="modal" data-bs-target="#saleModal"
-                                            onclick="showModal">
+                                            onclick="showModal({{ $sale->id }})">
                                             Lihat
                                         </button>
-                                        <a href=" " class="btn btn-info btn-sm text-white">
+                                        <a href="{{ route('sales.invoice.pdf', $sale->id) }}" class="btn btn-info btn-sm text-white">
                                             Unduh
                                         </a>
                                     </td>
                                 </tr>
-                            
+                            @empty
                                 <tr>
                                     <td colspan="7" class="text-center text-muted">Tidak ada data penjualan</td>
                                 </tr>
-                            
-                        </tbody>                        
+                            @endforelse
+                        </tbody>
                     </table>
                 </div>
 
@@ -90,7 +117,16 @@
 </div>
 
 <script>
-
-
+    function showModal(saleId) {
+        fetch(`/sales/${saleId}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('modal-content').innerHTML = data;
+            })
+            .catch(error => {
+                document.getElementById('modal-content').innerHTML = '<div class="modal-body text-danger">Gagal memuat data</div>';
+                console.error(error);
+            });
+    }
 </script>
 @endsection

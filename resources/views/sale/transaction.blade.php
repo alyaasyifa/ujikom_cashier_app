@@ -25,18 +25,26 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form id="sales-form" action="" method="POST">
+                        <form id="sales-form" action="{{ route('sales.store') }}" method="POST">
+                            @csrf
                             <div class="row">
                                 <h4 style="font-size: 25px">Produk yang dipilih</h4>
                                 <div class="col-md-6">
+                                    @php $grandTotal = 0; @endphp
+                                    @foreach ($cart as $item)
+                                        @php
+                                            $product = $item['product'];
+                                            $subtotal = $product->price * $item['quantity'];
+                                            $grandTotal += $subtotal;
+                                        @endphp
                                         <div class="col-md-10">
                                             <div class="d-flex flex-column" style="max-width: 100%;">
                                                 <div class="d-flex justify-content-between">
-                                                    <p class="mb-0"></p>
-                                                    <p class="fw-bold mb-0">Rp.</p>
+                                                    <p class="mb-0">{{ $product->product_name }}</p>
+                                                    <p class="fw-bold mb-0">Rp. {{ number_format($subtotal, 0, ',', '.') }}</p>
                                                 </div>
                                                 <div class="d-flex justify-content-between text-muted">
-                                                    <p class="mb-0">Rp.</p>
+                                                    <p class="mb-0">Rp. {{ number_format($product->price, 0, ',', '.') }} x {{ $item['quantity'] }}</p>
                                                 </div>
                                                 <hr class="my-2">
                                             </div>
@@ -44,11 +52,11 @@
                                             <input type="hidden" name="quantity[]" value="{{ $item['quantity'] }}">
                                         </div>
                                     @endforeach
-                                    
+
                                     <div class="col-md-10">
                                         <div class="d-flex justify-content-between" style="max-width: 100%; font-size: 20px;">
                                             <p class="fw-bold mb-0">Total</p>
-                                            <p class="fw-bold mb-0">Rp.</p>
+                                            <p class="fw-bold mb-0">Rp. {{ number_format($grandTotal, 0, ',', '.') }}</p>
                                         </div>
                                     </div>
                                 </div>

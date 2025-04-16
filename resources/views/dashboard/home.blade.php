@@ -11,7 +11,7 @@
                     <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                     </ol>
                 </nav>
-                <h1 class="mb-0 fw-bold">Dashboard</h1> 
+                <h1 class="mb-0 fw-bold">Dashboard</h1>
 
                     @if (session('success'))
                         <script>
@@ -29,7 +29,7 @@
                     @endif
             </div>
 
-            
+            @if(Auth::user()->role == 'admin')
                 <div class="card mb-4 p-4 mt-4">
                     <div class="fw-semibold fs-3 text-dark">Selamat Datang, Administrator!</div>
                     <div class="d-flex flex-wrap justify-content-center align-items-center">
@@ -42,107 +42,133 @@
                         </div>
                     </div>
                 </div>
-            
+            @elseif(Auth::user()->role == 'kasir')
                 <div class="container-fluid mt-4">
                     <div class="card w-100">
                         <div class="card-body">
                             <h3>Selamat Datang, Petugas!</h3>
                             <div class="card d-block mx-auto text-center w-100">
                                 <div class="card-header">
-                                    Total Penjualan Hari Ini
+                                    Total Penjualan Hari Ini :
                                 </div>
                                 <div class="card-body">
-                                    <h3 class="card-title"> </h3>
+                                    <h4>
+                                        {{ $totalPenjualanHariIni }}
+                                    </h4>
                                     <p class="card-text">Jumlah total penjualan yang terjadi hari ini.</p>
                                 </div>
                                 <div class="card-footer text-muted">
-                                    Terakhir diperbarui: 
+                                    Terakhir diperbarui: {{ $today }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             @endif
-            
+
         </div>
     </div>
 @endsection
 
-
 @push('script')
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const penjualanTahunan = @json($penjualanTahunan); // array of { tanggal, member, non_member }
+    const produkTerlaris = @json($produkTerlaris);      // array of { label, value }
 
+    // Bar chart: Member vs Non-member
+    const barChartLabels = penjualanTahunan.map(item => item.tanggal);
+    const memberData = penjualanTahunan.map(item => item.member);
+    const nonMemberData = penjualanTahunan.map(item => item.non_member);
 
-    // Render Bar Chart
     const chartBar = document.getElementById('chartBar');
     if (chartBar) {
         new Chart(chartBar, {
             type: 'bar',
             data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: 'Total Penjualan / Hari',
-                    data: barChartData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
+                labels: barChartLabels,
+                datasets: [
+                    {
+                        label: 'Non Member',
+                        data: nonMemberData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Member',
+                        data: memberData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 scales: {
-                    y: {  beginAtZero: true,
+                    y: {
+                        beginAtZero: true,
                         ticks: {
-                            stepSize: 10,
-                            max: 20
+                            stepSize: 1
                         }
                     }
-                }
-            }
-        });
-    }
-
-
-    // Render Pie Chart
-    const chartCircle = document.getElementById('chartCircle');
-    if (chartCircle) {
-        new Chart(chartCircle, {
-            type: 'pie',
-            data: {
-                labels: ['mie', 'bebek', 'ruliminions', 'Obat', 'bakso'],
-                datasets: [{
-                    label: 'Persentase Penjualan Produk',
-                    data: pieChartData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
-                    ],
-                    borderColor: [
-                        '#ff6384',
-                        '#36a2eb',
-                        '#ffce56',
-                        '#4bc0c0',
-                        '#9966ff'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
+                },
                 plugins: {
                     legend: { position: 'top' },
                     title: {
                         display: true,
-                        text: 'Produk Terjual Hari Ini'
+                        text: 'Penjualan Hari ini'
                     }
                 }
             }
         });
     }
+
+    // PIE CHART - Produk Terlaris
+    const pieChartLabels = produkTerlaris.map(p => p.label);
+    const pieChartData = produkTerlaris.map(p => p.value);
+
+    function generateColor(index) {
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+            '#F67019', '#00A950', '#C9CBCF', '#F53794', '#009688'
+        ];
+        return colors[index % colors.length];
+    }
+
+    if (produkTerlaris.length > 0) {
+        const backgroundColors = produkTerlaris.map((_, i) => generateColor(i) + '33'); // 33 for transparency
+        const borderColors = produkTerlaris.map((_, i) => generateColor(i));
+
+        const chartCircle = document.getElementById('chartCircle');
+        if (chartCircle) {
+            new Chart(chartCircle, {
+                type: 'pie',
+                data: {
+                    labels: pieChartLabels,
+                    datasets: [{
+                        label: 'Persentase Penjualan Produk',
+                        data: pieChartData,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: {
+                            display: true,
+                            text: 'Produk Terjual Hari Ini'
+                        }
+                    }
+                }
+            });
+        }
+    }
 });
 </script>
+
 @endpush
